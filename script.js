@@ -2,7 +2,7 @@ let appData = {};
 let currentPortal = null;
 let activePollId = null;
 let pendingAction = null;
-const MASTER_KEY = 'siddarth@2006';
+const MASTER_KEY = 'siddarth';
 let lastDeletedItem = null;
 let undoTimeout = null;
 
@@ -403,3 +403,4 @@ document.addEventListener('DOMContentLoaded', () => {
     loadData();
     renderPortalList();
 });
+
