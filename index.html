@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PollBridge: Anonymous Offline Polling</title>
+  <title>PollBridge: Anonymous Polling & Reporting</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,26 +14,45 @@
     <div><strong>PollBridge</strong></div>
     <div id="headerNav" class="hidden">
       <button onclick="returnToRoleSelection()" class="btn-secondary">Switch Role</button>
-      <button onclick="returnToPortalSelection()" class="btn-secondary">
+      <button id="backButton" class="btn-secondary">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        <span>Back to Portals</span>
-      </button>
-      <button onclick="toggleDarkMode()" id="darkModeToggle" class="btn-secondary" title="Toggle Dark Mode">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <span>Back</span>
       </button>
     </div>
   </header>
 
   <div id="welcomeScreen" class="container">
     <div class="hero-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-    <h1 style="text-align:center;">Anonymous & Offline Polling</h1>
-    <p style="text-align:center;">Create a private, secure space for anyone to share their voice. Perfect for teams, communities, and classrooms.</p>
-    <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
-    <h2>Join or Manage Portals</h2>
-    <div id="portalList"><p id="noPortalsMessage" class="hidden">No portals found. Create one to get started!</p></div>
-    <div style="text-align: right; margin-top: 10px;">
-        <button onclick="requestSelectiveReset()" class="btn-danger">Delete Selected Portals</button>
+    <h1 style="text-align:center;">Anonymous Polling & Reporting</h1>
+    <p style="text-align:center;">Choose an option below to either participate in polls or submit a secure, anonymous report.</p>
+    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap;">
+        <button onclick="showPortalHub()" class="btn-primary">Polling Portals</button>
+        <button onclick="initializePortal('Anonymous Reports')" class="btn-bright-danger">Reports</button>
     </div>
+  </div>
+
+  <div id="portalHubView" class="hidden container">
+    <button onclick="returnToWelcomeScreen()" class="btn-secondary">⬅️ Back to Main Menu</button>
+    <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
+    <div class="hub-header">
+      <h2>Join or Manage Portals</h2>
+      <div class="settings-menu-container">
+        <button id="settingsButton" onclick="toggleSettingsMenu(event)" class="btn-icon" title="Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+        </button>
+        <div id="settingsMenu" class="settings-menu hidden">
+            <button onclick="requestSelectiveReset()" class="menu-item btn-danger">Delete Selected Portals</button>
+            <div class="menu-item">
+                <span>Modes</span>
+                <label class="slider-switch">
+                    <input type="checkbox" class="dark-mode-toggle" onchange="toggleDarkMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div id="portalList"><p id="noPortalsMessage" class="hidden">No portals found. Create one to get started!</p></div>
     <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border-color);">
     <h2>Create a New Portal</h2>
     <p>Create a private space for your polls. You must set an admin password to manage it.</p>
@@ -48,9 +67,9 @@
 
   <div id="roleSelectionView" class="hidden container" style="text-align:center;">
     <h2 id="roleSelectionTitle"></h2>
-    <p>Will you be creating polls or casting votes within this portal?</p>
-    <button onclick="requestPollMasterAccess()" class="btn-primary">Create & Manage Polls</button>
-    <button onclick="showView('voter')" class="btn-primary">Participate in Polls</button>
+    <p>Please choose your role for this portal.</p>
+    <button id="roleButton1" onclick="requestPollMasterAccess()" class="btn-primary">Create & Manage Polls</button>
+    <button id="roleButton2" onclick="showView('voter')" class="btn-primary">Participate in Polls</button>
   </div>
 
   <div id="pollMasterView" class="hidden">
@@ -70,36 +89,19 @@
       <button onclick="createPoll()" class="btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg><span>Launch Poll</span></button>
     </div>
     <div class="container">
-        <h2>Active Polls</h2>
-        <div id="pollList"></div>
-        <details>
-            <summary>Archived Polls</summary>
-            <div id="archivedPollList"></div>
-        </details>
+        <h2>Active Polls</h2><div id="pollList"></div>
+        <details><summary>Archived Polls</summary><div id="archivedPollList"></div></details>
     </div>
   </div>
 
   <div id="voterView" class="hidden"><div class="container"><h2>Available Polls</h2><div id="voterPollList"></div></div></div>
+  
+  <div id="reportSubmissionView" class="hidden container"><h2>Submit an Anonymous Report</h2><p>This report will be submitted anonymously. The administrator will be able to see the text and the time of submission.</p><textarea id="reportText" placeholder="Enter your report here... (e.g., details of a crime, a death, or a local issue)"></textarea><button onclick="submitReport()" class="btn-primary">Submit Anonymously</button></div>
+  <div id="reportAdminView" class="hidden container"><h2>View Anonymous Reports</h2><div id="reportList"></div></div>
+
   <div id="voteModal" class="modal"><div class="container"><button class="close-btn" onclick="closeModal()">×</button><h2 id="voteQuestion"></h2><div id="voterNumber"></div><div id="voteModalContent"></div><div><button onclick="submitVote()" class="btn-primary">Cast My Vote</button><button onclick="closeModal()" class="btn-secondary">Cancel</button></div></div></div>
-  <div id="resultsView" class="modal">
-      <div class="container">
-          <button class="close-btn" onclick="closeResults()">×</button>
-          <h2 id="resultQuestion">Poll Results</h2>
-          <p id="resultTotalVotes" style="color: var(--text-light);"></p>
-          <div id="resultsContent"></div>
-          <h3>Anonymous Comments</h3>
-          <ul id="commentsList"></ul>
-          <button onclick="closeResults()" class="btn-secondary">Close</button>
-      </div>
-  </div>
-  <div id="passwordModal" class="modal">
-    <div class="container">
-      <button class="close-btn" onclick="closePasswordModal()">×</button>
-      <h2 id="passwordModalTitle">Enter Password</h2><p id="passwordModalPrompt"></p>
-      <input id="passwordInput" type="password" placeholder="Enter password" oninput="checkMasterKey(this)" />
-      <button onclick="confirmPassword()" class="btn-primary">Confirm</button>
-    </div>
-  </div>
+  <div id="resultsView" class="modal"><div class="container"><button class="close-btn" onclick="closeResults()">×</button><h2 id="resultQuestion">Poll Results</h2><p id="resultTotalVotes" style="color: var(--text-light);"></p><div id="resultsContent"></div><h3>Anonymous Comments</h3><ul id="commentsList"></ul><button onclick="closeResults()" class="btn-secondary">Close</button></div></div>
+  <div id="passwordModal" class="modal"><div class="container"><button class="close-btn" onclick="closePasswordModal()">×</button><h2 id="passwordModalTitle">Enter Password</h2><p id="passwordModalPrompt"></p><input id="passwordInput" type="password" placeholder="Enter password" oninput="checkMasterKey(this)" /><button onclick="confirmPassword()" class="btn-primary">Confirm</button></div></div>
   <div id="toastContainer"></div>
 
   <script src="script.js"></script>
